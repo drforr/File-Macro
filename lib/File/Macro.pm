@@ -46,14 +46,16 @@ Exports C<with_file> only.
 =cut
 
 sub with_file {
-  my $file_name = shift;
-  my $file_mode = ref( $_[0] ) eq 'CODE' ? '<' : shift;
-  my $file_handle = ref( $_[0] ) eq 'CODE' ? undef : shift;
-  my $coderef = shift;
+  my ( $file_name, $file_mode, $file_handle, $coderef );
+  if ( @_ == 3 ) {
+    ( $file_name, $file_mode, $coderef ) = @_;
+  }
+  else {
+    ( $file_name, $file_mode, $file_handle, $coderef ) = @_;
+  }
 
   if ( $file_handle ) {
-    local *fh = $file_handle;
-    open $file_handle, $file_mode, $file_name or
+    open $$file_handle, $file_mode, $file_name or
       die "Could not open '$file_name' in '$file_mode' mode: $@";
     $coderef->();
     close $_;
