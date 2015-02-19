@@ -26,12 +26,20 @@ already opened for you in C<$_>.
 
     use File::Macro;
     with_file 'foo.csv' => '<' => sub {
-        say <$_>; # Print the first line of the file.
+        say <$_>;
+    };
+
+If you want to use a different variable for the filehandle, just specify it
+after the mode selector, like so:
+
+    my $fh;
+    with_file 'foo.csv' => '<' => \$fh => sub {
+        say <$fh>;
     };
 
 =head1 EXPORT
 
-Exports C<with_file> only.
+Exports only C<with_file>.
 
 =head1 SUBROUTINES/METHODS
 
@@ -42,6 +50,12 @@ Exports C<with_file> only.
  perl closes the filehandle automatically.
 
  The C<$file_mode> defaults to C<< < >>, that is to say, reading.
+
+ You can also pass in a reference to your own file handle as follows:
+
+  with_file( 't/01-base.t', '<', \$my_fh, sub {
+    say <$my_fh>;
+  } );
 
 =cut
 
@@ -55,10 +69,13 @@ sub with_file {
   }
 
   if ( $file_handle ) {
+    my $save = $$file_handle;
+    $$file_handle = undef;
     open $$file_handle, $file_mode, $file_name or
       die "Could not open '$file_name' in '$file_mode' mode: $@";
     $coderef->();
     close $_;
+    $$file_handle = $save;
   }
   else {
     open local $_, $file_mode, $file_name or
@@ -74,19 +91,17 @@ Jeff Goff, C<< <jgoff at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-file-macro at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=File-Macro>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to C<bug-file-macro at rt.cpan.org>,
+or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=File-Macro>. I will be
+notified, and then you'll automatically be notified of progress on your bug as
+I make changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc File::Macro
-
 
 You can also look for information at:
 
@@ -110,9 +125,7 @@ L<http://search.cpan.org/dist/File-Macro/>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 

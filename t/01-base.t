@@ -1,6 +1,6 @@
 #!perl -T
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 use_ok( 'File::Macro' ) || print "Bail out!\n";
 
@@ -25,10 +25,11 @@ use_ok( 'File::Macro' ) || print "Bail out!\n";
 }
 
 { my $str;
-  my $fh;
+  my $fh = 'foo';
   with_file( 't/01-base.t', '<', \$fh, sub {
     $str = <$fh>;
   } );
   ok($str);
+  is($fh, 'foo');
   like($str, qr/perl/);
 }
